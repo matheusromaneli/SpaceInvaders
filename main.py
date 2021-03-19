@@ -3,8 +3,6 @@ import menu
 import game
 import dificuldade
 
-window= Window(500, 500)
-teclado = window.get_keyboard()
 state = 0
 dificulty = 1
 while True:
@@ -16,4 +14,4 @@ while True:
     elif state == 2:
         state = 0
     elif state == 3:
-        window.close()
+        break

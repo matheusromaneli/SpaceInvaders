@@ -23,7 +23,7 @@ def main():
 
     dificulty_buttons = [Sprite("Assets/Fácil.jpg" , 1),Sprite("Assets/Médio.jpg" , 1),Sprite("Assets/Difícil.jpg" , 1), Sprite("Assets/Voltar.jpg" , 1)]
     set_vetor(dificulty_buttons,window)
-
+    fundo = Sprite("Assets/Fundo.jpg", 1)
     while True:
         if mouse.is_button_pressed(1) and mouse.is_over_object(dificulty_buttons[0]):
             return 1
@@ -34,6 +34,7 @@ def main():
         if mouse.is_button_pressed(1) and mouse.is_over_object(dificulty_buttons[3]):
             return 0
 
+        fundo.draw()
         draw_buttons(dificulty_buttons)
         window.update()
 

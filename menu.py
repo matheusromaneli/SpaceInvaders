@@ -22,20 +22,21 @@ def menu():
 
     buttons = [Sprite("Assets/Jogar.jpg" , 1),Sprite("Assets/Dificuldade.png" , 1),Sprite("Assets/Ranking.jpg" , 1),Sprite("Assets/Sair.jpg" , 1)]
     set_vetor(buttons,window)
-
+    fundo = Sprite("Assets/Fundo.jpg", 1)
     while True:
+        if mouse.is_button_pressed(1):
+            if mouse.is_over_object(buttons[0]):
+                return 0
 
-        if mouse.is_button_pressed(1) and mouse.is_over_object(buttons[0]):
-            return 0
+            if mouse.is_over_object(buttons[1]):
+                return 1
 
-        if mouse.is_button_pressed(1) and mouse.is_over_object(buttons[1]):
-            return 1
+            if mouse.is_over_object(buttons[2]):
+                return 2
 
-        if mouse.is_button_pressed(1) and mouse.is_over_object(buttons[2]):
-            return 2
-
-        if mouse.is_button_pressed(1) and mouse.is_over_object(buttons[3]):
-            return 3
-
+            if mouse.is_over_object(buttons[3]):
+                return 3
+                
+        fundo.draw()
         draw_buttons(buttons)
         window.update()
