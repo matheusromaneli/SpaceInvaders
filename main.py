@@ -10,7 +10,7 @@ while True:
     if state == 0:
         state = game.main(dificulty)
     elif state == 1:
-        dificulty = dificuldade.main()
+        dificulty = dificuldade.main(dificulty)
     elif state == 2:
         state = 0
     elif state == 3:

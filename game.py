@@ -1,20 +1,21 @@
 from PPlay.window import *
 from PPlay.sprite import *
 
-def main(d):
-
+def main(dificulty):
+    dif = {1:"Facil", 2:"Medio", 3:"Dificil"}
     window= Window(600, 700)
     window.set_title("Space Invaders")
 
     teclado = window.get_keyboard()
 
-    fundo = [Sprite("Assets/Fundo.jpg", 1), Sprite("Assets/Fundo.jpg", 1)]
-    fundo[1].y = -fundo[0].height 
+    fundos = [Sprite("Assets/Fundo.png", 1), Sprite("Assets/Fundo.png", 1)]
+    fundos[0].y = 0
+    fundos[1].y = -fundos[0].height 
 
     nave = Sprite("Assets/Nave.png", 1)
     nave.set_position(window.width/2 - nave.width/2, window.height-nave.height)
 
-    velNave = 500 / d
+    velNave = 500 / dificulty
     tiros = []
     velTiro = -500 
     cooldownTiro = 0
@@ -42,14 +43,14 @@ def main(d):
             nave.move_x(-velNave * window.delta_time())
 
         if teclado.key_pressed("space") and cooldownTiro <= 0:
-            tiro = Sprite("Assets/Tiro.jpg", 1)
-            tiro.set_position( nave.x + nave.width/2 , nave.y-tiro.height)
+            tiro = Sprite("Assets/Tiro.png", 1)
+            tiro.set_position( nave.x + nave.width/2 - tiro.width/2, nave.y-tiro.height)
             tiros.append(tiro)
-            cooldownTiro = 80 * d
+            cooldownTiro = 80 * dificulty
 
-        for i in fundo:
-            i.move_y(50 * window.delta_time())
-            
+        for i in fundos:
+            i.move_y(1)
+
             #posiciona o fundo novamente
             if i.y > window.height:
                 i.y = window.height - 2 * i.height
@@ -58,7 +59,7 @@ def main(d):
         cooldownTiro += velTiro * window.delta_time()
 
         #draws
-        for i in fundo:
+        for i in fundos:
             i.draw()
 
         for tiro in tiros:
@@ -68,6 +69,7 @@ def main(d):
             tiro.draw()
 
         nave.draw()
-        window.draw_text(f"Dificulty: {d}", window.width - 80, 5, size = 20, color = (255,255,255))
+        dificulty_text= f"Dificuldade: {dif[dificulty]}"
+        window.draw_text(dificulty_text, window.width - len(dificulty_text)*8, 5, size = 20, color = (255,255,255))
         window.draw_text(f"FPS: {atual}",0,5, size = 20, color = (255,255,255))
         window.update()
