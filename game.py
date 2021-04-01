@@ -1,5 +1,6 @@
 from PPlay.window import *
 from PPlay.sprite import *
+
 def move(array,signal = 1):
     for i in array:
         for j in i:
@@ -37,7 +38,7 @@ def main(dificulty):
     velNave = 500 / dificulty
     tiros = []
     velTiro = -500 
-    velMonstro = 1
+    velMonstro = 2
     cooldownTiro = 0
     horda = []
     spawn = True
@@ -100,7 +101,7 @@ def main(dificulty):
             if (monstro[0].x < 0):
                 velMonstro *= -1
                 move(horda)
-                
+
         #Movimentaçao monstro
         for monstros in horda:
             for i in monstros:
