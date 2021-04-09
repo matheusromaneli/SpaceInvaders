@@ -88,18 +88,22 @@ def main(dificulty,score):
         quantidade = 0
         for monstros in horda:
             if monstros:
+                #movimentaçao
                 if(monstros[-1].x + monstros[-1].width > window.width):
                     velMonstro *= -1
                     move(horda,-1)
                 if (monstros[0].x < 0):
                     velMonstro *= -1
                     move(horda)
+                #colisoes com tiro/nave e desenho
                 for monstro in monstros:
                     monstro.move_x(velMonstro * dificulty/3)
                     monstro.draw()
+
                     if monstro.collided(nave):
                         ##perde
                         return False, int(score/(1 + (end-start)/1000))
+
                     for tiro in tiros:
                         if monstro.collided(tiro):
                             score += int(1000/(1+horda.index(monstros)))
