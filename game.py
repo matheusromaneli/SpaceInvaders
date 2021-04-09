@@ -21,20 +21,16 @@ def spawn_horda(array, linha, coluna):
         spawn_monster(monstros,linha,i)
         array.append(monstros)
 
-def main(dificulty):
+def main(dificulty,score):
     dif = {1:"Facil", 2:"Medio", 3:"Dificil"}
     window= Window(600, 700)
     window.set_title("Space Invaders")
-
+    window.update()
     teclado = window.get_keyboard()
-
-    fundos = [Sprite("Assets/Fundo.png", 1), Sprite("Assets/Fundo.png", 1)]
-    fundos[0].y = 0
-    fundos[1].y = -fundos[0].height 
 
     nave = Sprite("Assets/Nave.png", 1)
     nave.set_position(window.width/2 - nave.width/2, window.height-nave.height)
-
+    lifes = 3
     velNave = 500 / dificulty
     tiros = []
     velTiro = -500 
@@ -57,10 +53,11 @@ def main(dificulty):
         if spawn:
             spawn_horda(horda,5,5)
             spawn = False
+            start = window.time_elapsed()
 
         #Movimentaçoes
         if teclado.key_pressed("esc"):
-            return 0
+            return -1,-1
 
         if teclado.key_pressed("right") and nave.x+nave.width < window.width:
             nave.move_x(velNave * window.delta_time())
@@ -68,48 +65,78 @@ def main(dificulty):
         if teclado.key_pressed("left") and nave.x > 0:
             nave.move_x(-velNave * window.delta_time())
 
+        #Tiro
         if teclado.key_pressed("space") and cooldownTiro <= 0:
             tiro = Sprite("Assets/Tiro.png", 1)
             tiro.set_position( nave.x + nave.width/2 - tiro.width/2, nave.y-tiro.height)
             tiros.append(tiro)
             cooldownTiro = 80 * dificulty
 
-        for i in fundos:
-            i.move_y(1)
-
-            #posiciona o fundo novamente
-            if i.y > window.height:
-                i.y = window.height - 2 * i.height
-
         #tempo de recarga
         cooldownTiro += velTiro * window.delta_time()
 
         #draws
-        # for i in fundos:
-        #     i.draw()
+        
         window.set_background_color ((0,0,0))
+        #Tiros
         for tiro in tiros:
             tiro.move_y(velTiro* window.delta_time())
             if tiro.y + tiro.height < 0:
                 del tiros[tiros.index(tiro)]
             tiro.draw()
-        #Mudar Direcao
-        for monstro in horda:
-            if(monstro[-1].x + monstro[-1].width > window.width):
-                velMonstro *= -1
-                move(horda,-1)
-            if (monstro[0].x < 0):
-                velMonstro *= -1
-                move(horda)
-
-        #Movimentaçao monstro
+        #Monstros
+        quantidade = 0
         for monstros in horda:
-            for i in monstros:
-                i.move_x(velMonstro * dificulty/3)
-                i.draw()
+            if monstros:
+                if(monstros[-1].x + monstros[-1].width > window.width):
+                    velMonstro *= -1
+                    move(horda,-1)
+                if (monstros[0].x < 0):
+                    velMonstro *= -1
+                    move(horda)
+                for monstro in monstros:
+                    monstro.move_x(velMonstro * dificulty/3)
+                    monstro.draw()
+                    if monstro.collided(nave):
+                        ##perde
+                        return False, int(score/(1 + (end-start)/1000))
+                    for tiro in tiros:
+                        if monstro.collided(tiro):
+                            score += int(1000/(1+horda.index(monstros)))
+                            del monstros[monstros.index(monstro)]
+                            del tiros[tiros.index(tiro)]
+                            break
+                    quantidade += 1
 
+        if quantidade == 0:
+            ##ganha
+            end = window.time_elapsed()
+            return True, int(score/(1 + (end-start)/1000))
         nave.draw()
         dificulty_text= f"Dificuldade: {dif[dificulty]}"
         window.draw_text(dificulty_text, window.width - len(dificulty_text)*8, 5, size = 20, color = (255,255,255))
         window.draw_text(f"FPS: {atual}",0,5, size = 20, color = (255,255,255))
+        window.update()
+
+def over(win,score):
+    if win == 0:
+        color = (188,0,0)
+        text = "YOU LOSE"
+        
+    elif win == 1:
+        color = (0,0,188)
+        text = "YOU WIN"
+    else:
+        return 
+    score_text = f"Score: {score}"
+
+    window= Window(600, 700)
+    window.set_title("Space Invaders")
+    teclado = window.get_keyboard()
+    while True:
+        if teclado.key_pressed("esc"):
+            return
+        window.set_background_color ((0,0,0))
+        window.draw_text(text,window.width/2- len(text) * 25 , window.height/2 - 200, size = 100, color = color)
+        window.draw_text(score_text,window.width/2 - (len(score_text)-1) * 10, window.height/2, size = 40, color = (255,255,255))
         window.update()
