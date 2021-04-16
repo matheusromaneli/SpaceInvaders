@@ -1,5 +1,6 @@
 from PPlay.window import *
 from PPlay.sprite import *
+import random
 
 def move(array,signal = 1):
     for i in array:
@@ -21,6 +22,18 @@ def spawn_horda(array, linha, coluna):
         spawn_monster(monstros,linha,i)
         array.append(monstros)
 
+def choose_one(matriz):
+    while True:
+        linha = random.randint(0,len(matriz)-1)
+        if len(matriz[linha]) > 0:
+            try:
+                coluna = random.randint(0,len(matriz[linha])-1)
+            except:
+                coluna = 0
+            break    
+    # print(linha, coluna,len(matriz)-1,len(matriz[linha])-1)
+    return linha,coluna
+
 def main(dificulty,score):
     dif = {1:"Facil", 2:"Medio", 3:"Dificil"}
     window= Window(600, 700)
@@ -32,10 +45,14 @@ def main(dificulty,score):
     nave.set_position(window.width/2 - nave.width/2, window.height-nave.height)
     lifes = 3
     velNave = 500 / dificulty
+    invulneravelTime = 0
     tiros = []
+    tiros_monstros = []
     velTiro = -500 
     velMonstro = 2
     cooldownTiro = 0
+    cooldownTiroMonstro = 0
+    ultimoTiro = 0
     horda = []
     spawn = True
     cont=0
@@ -84,6 +101,26 @@ def main(dificulty,score):
             if tiro.y + tiro.height < 0:
                 del tiros[tiros.index(tiro)]
             tiro.draw()
+
+        for tiro in tiros_monstros:
+            tiro.move_y(-velTiro* window.delta_time())
+            if tiro.y < 0 or (tiro.collided(nave) and window.time_elapsed() - invulneravelTime>2000):
+                if tiro.collided(nave):
+                    nave.x = (window.width - nave.width)/2
+                    lifes -= 1
+                    invulneravelTime = window.time_elapsed()
+                del tiros_monstros[tiros_monstros.index(tiro)]
+            tiro.draw()
+            
+
+        if cooldownTiroMonstro < window.time_elapsed() - ultimoTiro:
+            cooldownTiroMonstro = random.randrange(800,1200)
+            ultimoTiro = window.time_elapsed()
+            i,j = choose_one(horda)
+            monstro = horda[i][j]
+            tiro = Sprite("Assets/Tiro.png", 1)
+            tiro.set_position( monstro.x + monstro.width/2 - tiro.width/2, monstro.y+monstro.height)
+            tiros_monstros.append(tiro)
         #Monstros
         quantidade = 0
         for monstros in horda:
@@ -100,8 +137,9 @@ def main(dificulty,score):
                     monstro.move_x(velMonstro * dificulty/3)
                     monstro.draw()
 
-                    if monstro.collided(nave):
+                    if monstro.collided(nave) or lifes == 0:
                         ##perde
+                        end = window.time_elapsed()
                         return False, int(score/(1 + (end-start)/1000))
 
                     for tiro in tiros:
@@ -116,10 +154,15 @@ def main(dificulty,score):
             ##ganha
             end = window.time_elapsed()
             return True, int(score/(1 + (end-start)/1000))
+        if window.time_elapsed() - invulneravelTime < 2000 and nave.drawable:
+            nave.hide()
+        else:
+            nave.unhide()
         nave.draw()
         dificulty_text= f"Dificuldade: {dif[dificulty]}"
         window.draw_text(dificulty_text, window.width - len(dificulty_text)*8, 5, size = 20, color = (255,255,255))
         window.draw_text(f"FPS: {atual}",0,5, size = 20, color = (255,255,255))
+        window.draw_text(f"Vidas: {lifes}",window.width/2,5, size = 20, color = (255,255,255))
         window.update()
 
 def over(win,score):
